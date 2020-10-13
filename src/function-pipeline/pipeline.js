@@ -1,5 +1,14 @@
 const OnError = require('./onerror')
 
+let STRIP_COMMENTS = /(\/\/.*$)|(\/\*[\s\S]*?\*\/)|(\s*=[^,\)]*(('(?:\\'|[^'\r\n])*')|("(?:\\"|[^"\r\n])*"))|(\s*=[^,\)]*))/mg;
+let ARGUMENT_NAMES = /([^\s,]+)/g;
+let getParamNames = function(func) {
+    let fnStr = func.toString().replace(STRIP_COMMENTS, '');
+    let result = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
+    if(result === null) result = [];
+    return result;
+}
+
 class Pipeline {
 
     constructor() {
@@ -31,8 +40,16 @@ class Pipeline {
 
             // exec async functions and record exec time if it's resolved
             const resArr = await Promise.allSettled(this.steps[i].functions.map(async (fn) => {
+
+                // dynamically parsing function arguments
+                let paramNames = getParamNames(fn)
+                let params = []
+                paramNames.forEach(name => {
+                    params.push(this.variables[name])
+                })
+
                 const start = Date.now()
-                let ret = await fn()
+                let ret = await fn.apply(this, params)
                 this.execTime[fn.name] = Date.now() - start
                 console.log(' * ' + fn.name + ' completed: ' + this.execTime[fn.name] + ' ms')
                 return ret

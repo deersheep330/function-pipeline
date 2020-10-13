@@ -2,11 +2,11 @@ const { FunctionPipeline, OnError } = require('./function-pipeline');
 
 (async () => {
 
-    const resolveFn = async () => {
+    const resolveFn = async (cookie, workspaceId) => {
         return new Promise(async (resolve, reject) => await setTimeout(resolve, 5000, {fre:'foo'}));
     }
 
-    const rejectFn = async () => {
+    const rejectFn = async (cookie) => {
         return new Promise(async (resolve, reject) => await setTimeout(reject, 5000, 'foo'));
     }
 
