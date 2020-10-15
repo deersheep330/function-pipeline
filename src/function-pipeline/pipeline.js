@@ -72,8 +72,8 @@ class Pipeline {
                 if (res.status === 'rejected') {
                     isRejected = true
 
-                    this.emitter.emit('log', this.log(`${this.steps[i].functions[j].name} rejected for reason: ${res.reason}`))
-                    this.emitter.emit('err', this.log(`${this.steps[i].functions[j].name} rejected for reason: ${res.reason}`))
+                    this.emitter.emit('log', this.log(`${this.steps[i].functions[j].name} rejected for reason: ${JSON.stringify(res.reason)}`))
+                    this.emitter.emit('err', this.log(`${this.steps[i].functions[j].name} rejected for reason: ${JSON.stringify(res.reason)}`))
 
                 }
                 else {
