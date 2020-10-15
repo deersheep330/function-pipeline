@@ -1,3 +1,5 @@
+const EventEmitter = require('events').EventEmitter
+const process = require('process')
 const OnError = require('./onerror')
 
 let STRIP_COMMENTS = /(\/\/.*$)|(\/\*[\s\S]*?\*\/)|(\s*=[^,\)]*(('(?:\\'|[^'\r\n])*')|("(?:\\"|[^"\r\n])*"))|(\s*=[^,\)]*))/mg;
@@ -12,9 +14,15 @@ let getParamNames = function(func) {
 class Pipeline {
 
     constructor() {
+        this.pid = process.pid
+        this.emitter = new EventEmitter()
         this.steps = []
         this.variables = {}
         this.execTime = {}
+    }
+
+    log(text) {
+        return `[PID ${this.pid}][${new Date().toLocaleTimeString()}] ${text}`
     }
 
     add(onError, ... functions) {
@@ -36,7 +44,7 @@ class Pipeline {
         let stepsCount = this.steps.length, i = 0
         while (i < stepsCount) {
 
-            console.log('==> Step ' + (i + 1) + ':')
+            this.emitter.emit('log', this.log(`=== Step ${i+1} ===`))
 
             // exec async functions and record exec time if it's resolved
             const resArr = await Promise.allSettled(this.steps[i].functions.map(async (fn) => {
@@ -51,7 +59,10 @@ class Pipeline {
                 const start = Date.now()
                 let ret = await fn.apply(this, params)
                 this.execTime[fn.name] = Date.now() - start
-                console.log(' * ' + fn.name + ' completed: ' + this.execTime[fn.name] + ' ms')
+
+                this.emitter.emit('log', this.log(`${fn.name} completed in ${this.execTime[fn.name]} ms`))
+                this.emitter.emit('record', { [fn.name]: this.execTime[fn.name] })
+
                 return ret
             }))
             
@@ -60,22 +71,25 @@ class Pipeline {
             resArr.forEach((res, j) => {
                 if (res.status === 'rejected') {
                     isRejected = true
-                    console.log(' * ' + this.steps[i].functions[j].name + ' rejected for reason: ' + res.reason)
+
+                    this.emitter.emit('log', this.log(`${this.steps[i].functions[j].name} rejected for reason: ${res.reason}`))
+                    this.emitter.emit('err', this.log(`${this.steps[i].functions[j].name} rejected for reason: ${res.reason}`))
+
                 }
                 else {
-                    if (res.value.constructor == Object) {
+                    if (res.value && res.value.constructor == Object) {
                         this.variables = {
                             ... this.variables,
                             ... res.value
                         }
+                        this.emitter.emit('log', this.log(`push ${JSON.stringify(res.value)} into pipeline.variables`))
                     }
                     else {
                         this.variables.returnVal = res.value
+                        this.emitter.emit('log', this.log(`push { returnVal: ${JSON.stringify(res.value)} } into pipeline.variables`))
                     }
                 }
-                console.log(res)
             })
-            console.log(this.variables)
 
             if (isRejected && this.steps[i].onError === OnError.START_OVER) {
                 i = 0
