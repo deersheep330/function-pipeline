@@ -51,19 +51,27 @@ A step is defined by calling the add(onError, ... functions) method of pipeline 
 You can pass arbitrary numbers of functions into the "add" method to define a step contains multiple functions. These functions would all be called at the same time and this step is finished if and only if all the functions are resolved or rejected. 
 
 The onError argument could be OnError.RETRY, OnError.START_OVER or OnError.CONTINUE.
+
 For OnError.RETRY, if any of functions in this step is rejected, the pipeline would re-run this step again.
+
 For OnError.START_OVER, if any of functions in this step is rejected, the pipeline would re-run from the first step again.
+
 For OnError.CONTINUE, if any of functions in this step is rejected, the error would be ignored, which means: the pipeline would proceed to the next step when all the functions in the step are returned, no matter it's resolved or rejected. 
 
 The following code defined a 3-steps pipeline. Each step contains only one function:
 
 step 1 - login
+
 step 2 - download
+
 step 3 - logout
 
 This pipeline would run these 3 steps sequentially.
+
 If step 1 is rejected, it would try to step 1 again.
+
 If step 2 is rejected, it would start from step 1 again.
+
 If step 3 is rejected, it would ignore error and continue.
 
 By calling the perform() method of pipeline instance, the pipeline would start to run these defined steps.
