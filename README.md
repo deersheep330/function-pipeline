@@ -112,7 +112,9 @@ let download = async (cookie) => { await request('/download', cookie) }
 
 FunctionPipeline already take care this for you :)
 
-Once a function resolved in the pipeline instance, the resolved value would be stored in a dictionary in the pipeline instance. (So it requires the resolved value to be a key-value pair.) If a step contains a function which has arguments, the arguments names would be parsed, and try to find these arguments names in the dictionary, and automatically pass the value found into the function.
+Once a function resolved in the pipeline instance, the resolved value would be stored in a dictionary in the pipeline instance. (So it requires the resolved value to be a key-value pair.) 
+
+If a step contains a function which has arguments, the arguments names would be parsed, and try to find these arguments names in the dictionary, and automatically pass the value found into the function.
 
 So back to our example: the "login" and "download" functions just need a little modification to follow FunctionPipeline's design:
 
@@ -136,15 +138,15 @@ let pipeline = new FunctionPipeline()
 
 // verbose logs, current steps, function's resolved or rejected
 pipeline.emitter.on('log', function(data) {
-    console.log(`\x1b[1m${data}\x1b[0m`)
+    console.log(data)
 })
 // records of test results, the time consuming of each functions
 pipeline.emitter.on('record', function(data) {
-    console.log(`\x1b[44m${JSON.stringify(data)}\x1b[0m`)
+    console.log(data)
 })
 // contains error logs only, function's rejected reason
 pipeline.emitter.on('err', function(data) {
-    console.log(`\x1b[41m${data}\x1b[0m`)
+    console.log(data)
 })
 
 // build the pipeline and run it
