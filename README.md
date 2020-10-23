@@ -8,7 +8,6 @@ __function-pipeline makes it easy to perform very complex, unstable load test.__
 - [Getting Started](#getting-started)
 - [Usage](#usage)
 - [Demo](#demo)
-- [License](#license)
 
 ## Use Case
 
