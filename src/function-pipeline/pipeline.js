@@ -77,7 +77,10 @@ class Pipeline {
 
                 }
                 else {
-                    if (res.value && res.value.constructor == Object) {
+                    if (res.value === undefined) {
+
+                    }
+                    else if (res.value && res.value.constructor == Object) {
                         this.variables = {
                             ... this.variables,
                             ... res.value
