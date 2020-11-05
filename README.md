@@ -61,7 +61,7 @@ The following code defined a 3-steps pipeline. Each step contains only one funct
 
 - __(Step 1):__ login
 - __(Step 2):__ download
-- __(Step 2):__ logout
+- __(Step 3):__ logout
 
 This pipeline would run these 3 steps sequentially.
 
