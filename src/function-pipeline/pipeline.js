@@ -13,13 +13,23 @@ let getParamNames = function(func) {
 
 class Pipeline {
 
-    constructor(id=undefined) {
+    constructor(id=undefined, initialVariables=undefined) {
         this.id = id
         this.pid = process.pid
         this.emitter = new EventEmitter()
         this.steps = []
-        this.variables = {}
+        this.initialVariables = initialVariables
+        this.initVariables()
         this.execTime = {}
+    }
+
+    initVariables() {
+        this.variables = {}
+        if (this.initialVariables) {
+            for (let key in this.initialVariables) {
+                this.variables[key] = this.initialVariables[key]
+            }
+        }
     }
 
     log(text) {
@@ -40,7 +50,7 @@ class Pipeline {
     async perform() {
 
         // clear
-        this.variables = {}
+        this.initVariables()
         this.execTime = {}
 
         let stepsCount = this.steps.length, i = 0
