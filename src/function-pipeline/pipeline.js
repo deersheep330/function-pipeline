@@ -56,7 +56,7 @@ class Pipeline {
         let stepsCount = this.steps.length, i = 0
         while (i < stepsCount) {
 
-            this.emitter.emit('log', this.log(`=== Step ${i+1} ===`))
+            //this.emitter.emit('log', this.log(`=== Step ${i+1} ===`))
 
             // exec async functions and record exec time if it's resolved
             const resArr = await Promise.allSettled(this.steps[i].functions.map(async (fn) => {
