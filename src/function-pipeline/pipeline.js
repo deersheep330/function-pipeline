@@ -13,7 +13,8 @@ let getParamNames = function(func) {
 
 class Pipeline {
 
-    constructor() {
+    constructor(id=undefined) {
+        this.id = id
         this.pid = process.pid
         this.emitter = new EventEmitter()
         this.steps = []
@@ -22,7 +23,8 @@ class Pipeline {
     }
 
     log(text) {
-        return `[PID ${this.pid}][${new Date().toLocaleTimeString()}] ${text}`
+        if (this.id) return `[${this.id}][${new Date().toLocaleTimeString()}] ${text}`
+        else return `[PID ${this.pid}][${new Date().toLocaleTimeString()}] ${text}`
     }
 
     add(onError, ... functions) {
